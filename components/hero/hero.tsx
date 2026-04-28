@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Calendar, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AnimatedStripes } from "./animated-stripes";
@@ -10,6 +10,8 @@ interface HeroProps {
     title: string;
     date: string;
     registrationUrl: string;
+    location?: string;
+    event_date?: string;
   };
 }
 
@@ -78,8 +80,26 @@ export function Hero({ nextEvent }: HeroProps) {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 text-sm text-white/70 mb-2">
                     <Calendar className="h-4 w-4" />
-                    <span>{nextEvent.date}</span>
+                    {/* Afficher la date formatée de l'événement */}
+                    <span>
+                      {nextEvent.event_date
+                        ? new Date(nextEvent.event_date).toLocaleDateString("fr-FR", {
+                            weekday: "long",
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : nextEvent.date}
+                    </span>
                   </div>
+                  {nextEvent.location && (
+                    <div className="flex items-center gap-2 text-sm text-white/70 mb-3">
+                      <MapPin className="h-4 w-4" />
+                      <span>{nextEvent.location}</span>
+                    </div>
+                  )}
                   <h3 className="font-heading text-lg font-semibold mb-3 text-white">
                     {nextEvent.title}
                   </h3>
@@ -93,6 +113,7 @@ export function Hero({ nextEvent }: HeroProps) {
               </Card>
             </div>
           )}
+    
         </div>
       </div>
     </section>
