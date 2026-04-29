@@ -13,7 +13,7 @@ Plateforme communautaire GAB (GenAI Builders) pour l'adoption de l'IA générati
 - **Mutations** : Server Actions
 - **Routing** : App Router (file-based)
 - **Imports UI** : Toujours depuis `@/components/ui/`
-- **Hosting** : Vercel
+- **Hosting** : Vercel/
 - **Intégrations** : Luma (events), Resend (newsletter)
 
 ## Structure
