@@ -79,6 +79,12 @@
   @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
 }
 
+/* Event card hover — vert GAB */
+.event-card-hover:hover {
+  border-color: rgba(134, 239, 172, 0.6);
+  background-color: rgba(20, 83, 45, 0.1);
+}
+
 /* Animated stripes for hero background */
 @keyframes stripe {
   0%,

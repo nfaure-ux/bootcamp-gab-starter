@@ -1,52 +1,77 @@
-import type { Metadata } from "next";
-import { Calendar, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { promises as fs } from "fs"
+import path from "path"
+import { Suspense } from "react"
+import type { Metadata } from "next"
+import { EventsFilter } from "@/components/events/events-filter"
+import { EventsList } from "@/components/events/events-list"
+import { CityWeather } from "@/components/events/city-weather"
+import type { Event, EventCity, EventType, EventPeriod } from "@/lib/types/content"
 
 export const metadata: Metadata = {
-  title: "Events",
-  description:
-    "Meetups, webinars et workshops GenAI. Rejoins la communaute GAB.",
-};
+  title: "Événements",
+  description: "Meetups, webinars et workshops GenAI. Rejoins la communauté GAB.",
+}
 
-export default function EventsPage() {
+const VALID_CITIES: EventCity[] = ["Lille", "Paris", "Lyon", "Remote"]
+const VALID_TYPES: EventType[] = ["meetup", "webinar", "workshop", "conference"]
+const VALID_PERIODS: EventPeriod[] = ["upcoming", "past", "all"]
+
+interface SearchParams {
+  city?: string
+  type?: string
+  period?: string
+}
+
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>
+}) {
+  const params = await searchParams
+  const filePath = path.join(process.cwd(), "data", "events.json")
+  const raw = await fs.readFile(filePath, "utf-8")
+  const events: Event[] = JSON.parse(raw)
+
+  const initialPeriod: EventPeriod = VALID_PERIODS.includes(params.period as EventPeriod)
+    ? (params.period as EventPeriod)
+    : "upcoming"
+
+  const initialCity: EventCity | "all" = VALID_CITIES.includes(params.city as EventCity)
+    ? (params.city as EventCity)
+    : "all"
+
+  const initialType: EventType | "all" = VALID_TYPES.includes(params.type as EventType)
+    ? (params.type as EventType)
+    : "all"
+
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="max-w-3xl mb-12">
-        <h1 className="font-heading text-3xl font-bold mb-4">Events</h1>
+      <div className="max-w-3xl mb-10">
+        <h1 className="font-heading text-3xl font-bold mb-4">Événements</h1>
         <p className="text-lg text-muted-foreground">
-          Meetups, webinars et workshops avec des experts GenAI. Participe en
-          direct ou regarde les replays.
+          Meetups, webinars et workshops avec des experts GenAI. Participe en direct ou
+          regarde les replays.
         </p>
       </div>
 
-      {/* Upcoming Events */}
-      <section className="mb-16">
-        <h2 className="font-heading text-xl font-semibold mb-6 flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
-          Prochains events
-        </h2>
-        <div className="rounded-lg border border-border/50 p-8 text-center">
-          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">
-            Aucun event programme pour le moment.
-          </p>
-          <Button variant="outline">Recevoir les annonces</Button>
-        </div>
-      </section>
+      <CityWeather />
 
-      {/* Past Events / Replays */}
-      <section>
-        <h2 className="font-heading text-xl font-semibold mb-6 flex items-center gap-2">
-          <Play className="h-5 w-5 text-primary" />
-          Replays disponibles
-        </h2>
-        <div className="rounded-lg border border-border/50 p-8 text-center">
-          <Play className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">
-            Les replays arrivent bientot. Reste connecte!
-          </p>
-        </div>
-      </section>
+      <Suspense>
+        <EventsFilter
+          initialPeriod={initialPeriod}
+          initialCity={initialCity}
+          initialType={initialType}
+        />
+      </Suspense>
+
+      <Suspense>
+        <EventsList
+          events={events}
+          initialPeriod={initialPeriod}
+          initialCity={initialCity}
+          initialType={initialType}
+        />
+      </Suspense>
     </div>
-  );
+  )
 }
